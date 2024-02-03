@@ -99,8 +99,7 @@ def add_to_menu():
 def main():
     driver = webdriver.Edge()
     website = 'http://localhost:5173'
-    choice = '1'
-    # input("Enter your choice: ")
+    choice =  input("Enter your choice: ")
     if choice == "1":
         username = "admin"
         password = "123456"
