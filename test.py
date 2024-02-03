@@ -3,6 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 
 def test_login(driver, username, password, website):
     driver.get(f"{website}/login")
@@ -10,6 +11,19 @@ def test_login(driver, username, password, website):
     driver.find_element(By.ID, 'name').send_keys(username)
     driver.find_element(By.ID, 'password').send_keys(password)
     driver.find_element(By.XPATH, '//*[@id="root"]/div/div/div/div/div/button').click()
+
+    try:
+        alert = WebDriverWait(driver, 5).until(EC.alert_is_present())
+        alert_text = alert.text
+
+        if alert_text == "Wrong Login ! Try again...":
+            print("Test failed: Wrong Login ! Try again...")
+        else:
+            print("Test passed: Alert text does not match expected message")
+        
+        alert.accept()
+    except TimeoutException:
+        print("Test passed: No alert was raised")
 
 def test_signup(driver, username, email, password, website):
     driver.get(f"{website}/signup")
@@ -27,7 +41,20 @@ def test_signup(driver, username, email, password, website):
     driver.find_element(By.ID, 'confirmPassword').clear()
     driver.find_element(By.ID, 'confirmPassword').send_keys(password)
 
-    WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/div/div/button'))).click()
+    driver.find_element(By.XPATH, '//*[@id="root"]/div/div/div/div/div/button').click()
+
+    try:
+        alert = WebDriverWait(driver, 5).until(EC.alert_is_present())
+        alert_text = alert.text
+
+        if alert_text == "Could not signup user for some reason!":
+            print("Test failed: User already exists!")
+        else:
+            print("Test passed: Alert text does not match expected message")
+        
+        alert.accept()
+    except TimeoutException:
+        print("Test passed: No alert was raised")
 
 def remove_from_favorite(driver, website):
     test_login(driver, "admin", "123456", website)
@@ -72,11 +99,11 @@ def add_to_menu():
 def main():
     driver = webdriver.Edge()
     website = 'http://localhost:5173'
-    choice = '4'
+    choice = '1'
     # input("Enter your choice: ")
     if choice == "1":
-        username = "yahiaa05"
-        password = "AdminAdmin123@"
+        username = "admin"
+        password = "123456"
         test_login(driver, username, password, website)
         time.sleep(5)
     elif choice == "2":
