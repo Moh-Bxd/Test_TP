@@ -3,7 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException ,NotFoundException
 
 def test_login(driver, username, password, website):
     driver.get(f"{website}/login")
@@ -72,6 +72,24 @@ def remove_from_favorite(driver, website):
         print("Alert text does not match")
 
     alert.accept()
+
+def test_search(driver, website,searchtest):
+    driver.get(website)
+    driver.maximize_window()
+    search_box = driver.find_element(By.XPATH, '//*[@id="root"]/div/div/div/input')
+    search_box.send_keys(searchtest)
+    search_button = driver.find_element(By.XPATH, '//*[@id="root"]/div/div/div/button')
+    search_button.click()
+    try:
+
+        WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/ul/div[1]/div[1]/h2')))
+        print("Test passed: Search works!")
+        return True
+
+    except (TimeoutException, NotFoundException) :
+        print("Test failed: Search does not work!") 
+        return False       
+
 def add_to_favorite(driver, website):
     test_login(driver, "admin", "123456", website)
     WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, '//*[@id="root"]/div/div/div/button'))).click()
@@ -89,12 +107,12 @@ def add_to_favorite(driver, website):
     alert.accept()
 
 
-
 def add_to_menu():
     print("Enter 1 to test login")
     print("Enter 2 to test signup")
     print("Enter 3 to add to favorite")
     print("Enter 4 to remove from favorite")
+    print("Enter 5 to test search")
 
 def main():
     driver = webdriver.Edge()
@@ -116,6 +134,10 @@ def main():
         time.sleep(5)
     elif choice == "4":
         remove_from_favorite(driver, website)
+        time.sleep(5)
+    elif choice == "5":
+        searchtest = input("Enter the search term: ")
+        test_search(driver, website, 'ai')
         time.sleep(5)
     else:
         print("Invalid choice")
